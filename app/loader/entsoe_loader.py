@@ -32,3 +32,15 @@ class EntsoeLoader:
             return self._prepare_dataframe(prices)
         except NoMatchingDataError:
             return pd.DataFrame(columns=["price"])
+
+    def get_load(self, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+
+        try:
+            loads = self.client.query_load(
+                country_code=self.country, start=start, end=end
+            ).rename(columns={"Actual Load": "load"})
+
+            return self._prepare_dataframe(loads)
+
+        except NoMatchingDataError:
+            return pd.DataFrame(columns=["load"])

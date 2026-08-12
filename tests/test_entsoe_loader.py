@@ -53,7 +53,7 @@ def test_prepare_dataframe_sorts_index():
 
 
 def test_get_prices_returns_15_minute_data():
-    loader = EntsoeLoader()
+    loader = EntsoeLoader.__new__(EntsoeLoader)
     loader.client = Mock()
     loader.country = settings.country
 
@@ -78,7 +78,7 @@ def test_get_prices_returns_15_minute_data():
 
 
 def test_get_prices_returns_empty_dataframe_when_no_data():
-    loader = Mock()
+    loader = EntsoeLoader.__new__(EntsoeLoader)
     loader.client = Mock()
     loader.country = settings.country
 
@@ -92,3 +92,49 @@ def test_get_prices_returns_empty_dataframe_when_no_data():
 
     assert result.empty
     assert list(result.columns) == ["price"]
+
+
+def test_get_load_returns_dataframe():
+    loader = EntsoeLoader.__new__(EntsoeLoader)
+    loader.client = Mock()
+    loader.country = "PL"
+
+    load_data = pd.DataFrame(
+        {"Actual Load": [1000.0, 1100.0]},
+        index=pd.to_datetime(
+            [
+                "2026-01-01 10:00",
+                "2026-01-01 10:15",
+            ],
+            utc=True,
+        ),
+    )
+
+    loader.client.query_load.return_value = load_data
+
+    result = loader.get_load(
+        load_data.index[0],
+        load_data.index[1],
+    )
+
+    assert isinstance(result, pd.DataFrame)
+    assert "load" in result.columns
+    assert "Actual Load" not in result.columns
+    assert len(result) == 2
+
+
+def test_get_load_returns_empty_dataframe_when_no_data():
+    loader = EntsoeLoader.__new__(EntsoeLoader)
+    loader.client = Mock()
+    loader.country = settings.country
+
+    loader.client.query_load.side_effect = NoMatchingDataError()
+
+    result = loader.get_load(
+        pd.Timestamp("2026-01-01", tz="UTC"),
+        pd.Timestamp("2026-01-02", tz="UTC"),
+    )
+
+    assert isinstance(result, pd.DataFrame)
+    assert result.empty
+    assert list(result.columns) == ["load"]
