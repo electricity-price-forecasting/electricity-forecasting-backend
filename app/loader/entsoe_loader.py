@@ -5,6 +5,8 @@ from entsoe.exceptions import NoMatchingDataError
 from app.src.settings import settings
 import pandas as pd
 
+from utils.validation import validate_dates
+
 
 class EntsoeLoader:
 
@@ -44,3 +46,30 @@ class EntsoeLoader:
 
         except NoMatchingDataError:
             return pd.DataFrame(columns=["load"])
+
+    def get_wind_solar(self, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+        try:
+            generation = self._prepare_dataframe(
+                self.client.query_generation(
+                    country_code=self.country, start=start, end=end
+                )
+            )
+            renewable = pd.DataFrame(index=generation.index)
+            if "Wind Onshore" in generation.columns:
+                renewable["wind"] = generation["Wind Onshore"]
+            if "Solar" in generation.columns:
+                renewable["solar"] = generation["Solar"]
+            return renewable
+        except NoMatchingDataError:
+            return pd.DataFrame(columns=["wind", "solar"])
+
+    def build_dataset(self, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+        validate_dates(start, end)
+
+        prices = self.get_prices(start, end)
+        load = self.get_load(start, end)
+        renewable = self.get_wind_solar(start, end)
+
+        df = prices.join(load, how="inner").join(renewable, how="inner").sort_index()
+
+        return df
