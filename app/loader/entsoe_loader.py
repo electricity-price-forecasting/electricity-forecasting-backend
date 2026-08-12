@@ -2,7 +2,7 @@ import os
 from entsoe import EntsoePandasClient
 from entsoe.exceptions import NoMatchingDataError
 
-from src.settings import settings
+from app.src.settings import settings
 import pandas as pd
 
 
