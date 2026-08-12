@@ -1,0 +1,21 @@
+[project]
+name = "electricity-forecasting-backend"
+version = "0.1.0"
+description = "Backend service for electricity price forecasting platform — REST API, data ingestion, and ML model integration."
+authors = [
+    {name = "Psychox1k", email = "success01001011@gmail.com"},
+    {name = "ssokolowskisebastian", email = "ssokolowskisebastian@gmail.com"}
+]
+requires-python = "^3.14"
+dependencies = [
+    "fastapi (>=0.141.1,<0.142.0)",
+    "pandas (>=3.0.5,<4.0.0)",
+    "entsoe-py (>=0.8.0,<0.9.0)",
+    "pydantic-settings (>=2.15.0,<3.0.0)"
+]
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
