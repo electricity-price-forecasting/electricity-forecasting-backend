@@ -44,3 +44,19 @@ class EntsoeLoader:
 
         except NoMatchingDataError:
             return pd.DataFrame(columns=["load"])
+
+    def get_wind_solar(self, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+        try:
+            generation = self._prepare_dataframe(
+                self.client.query_generation(
+                    country_code=self.country, start=start, end=end
+                )
+            )
+            renewable = pd.DataFrame(index=generation.index)
+            if "Wind Onshore" in generation.columns:
+                renewable["wind"] = generation["Wind Onshore"]
+            if "Solar" in generation.columns:
+                renewable["solar"] = generation["Solar"]
+            return renewable
+        except NoMatchingDataError:
+            return pd.DataFrame(columns=["wind", "solar"])
