@@ -1,15 +1,32 @@
-import os
-from dataclasses import dataclass
-from dotenv import load_dotenv
-
-load_dotenv()
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-@dataclass(frozen=True)
-class Settings:
+class Settings(BaseSettings):
 
-    entsoe_api_key: str = os.getenv("ENTSOE_API_KEY", "")
-    country: str = os.getenv("COUNTRY", "PL")
+    entsoe_api_key: str
+    country: str = "PL"
+
+    PROJECT_NAME: str = "Electricity Price Forecasting"
+
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: str
+    POSTGRES_DB: str
+    POSTGRES_ECHO: bool = False
+
+    REDIS_PORT: int
+    REDIS_HOST: str
+
+    @property
+    def database_url(self) -> str:
+        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+    )
 
 
-settings = Settings()
+settings: Settings = Settings()  # type: ignore[call-arg]
