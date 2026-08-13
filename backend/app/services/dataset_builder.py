@@ -1,0 +1,68 @@
+import pandas as pd
+from app.loader.entsoe_loader import EntsoeLoader
+from app.utils.time_utils import normalize_timezone, resample_to_15min
+from app.utils.cache import get_cached_or_fetch
+
+
+class HistoricalDatasetBuilder:
+    def __init__(self, loader: EntsoeLoader):
+        self.loader = loader
+
+
+    @staticmethod
+    def merge_energy_data(prices_df: pd.DataFrame, load_df: pd.DataFrame) -> pd.DataFrame:
+
+        if prices_df.empty and load_df.empty:
+            return pd.DataFrame()
+
+        merged = pd.concat([prices_df, load_df], axis=1, join="outer")
+        return merged
+
+
+    def build(self, start_date: str, end_date: str, refresh_cache: bool = False) -> pd.DataFrame:
+
+        months = pd.date_range(start=start_date, end=end_date, freq="MS")
+        all_months_data = []
+
+        for dt in months:
+
+            prices = get_cached_or_fetch(
+                fetch_func=self.loader.get_prices,
+                year=dt.year,
+                month=dt.month,
+                data_type="prices",
+                refresh=refresh_cache
+            )
+
+            load = get_cached_or_fetch(
+                fetch_func=self.loader.get_load,
+                year=dt.year,
+                month=dt.month,
+                data_type="load",
+                refresh=refresh_cache
+            )
+
+            prices = normalize_timezone(prices)
+            load = normalize_timezone(load)
+
+
+            prices = resample_to_15min(prices)
+
+            load = resample_to_15min(load)
+
+
+            monthly_merged = self.merge_energy_data(prices, load)
+
+            if not monthly_merged.empty:
+                all_months_data.append(monthly_merged)
+
+        if not all_months_data:
+            return pd.DataFrame()
+
+        final_dataset = pd.concat(all_months_data, axis=0)
+
+        start_ts = pd.Timestamp(start_date, tz="UTC")
+        end_ts = pd.Timestamp(end_date, tz="UTC")
+        final_dataset = final_dataset.loc[start_ts:end_ts]
+
+        return final_dataset.sort_index()
