@@ -18,10 +18,13 @@ class HistoricalDatasetBuilder:
         merged = pd.concat([prices_df, load_df], axis=1, join="outer")
         return merged
 
-
     def build(self, start_date: str, end_date: str, refresh_cache: bool = False) -> pd.DataFrame:
 
-        months = pd.date_range(start=start_date, end=end_date, freq="MS")
+        start_month = pd.Timestamp(start_date).replace(day=1)
+
+
+        months = pd.date_range(start=start_month, end=end_date, freq="MS")
+
         all_months_data = []
 
         for dt in months:
