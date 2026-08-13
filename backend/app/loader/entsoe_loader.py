@@ -30,7 +30,6 @@ class EntsoeLoader:
             prices = self.client.query_day_ahead_prices(
                 country_code=self.country, start=start, end=end
             ).to_frame(name="price")
-            prices = prices.resample("15min").interpolate(method="time").round(2)
             return self._prepare_dataframe(prices)
         except NoMatchingDataError:
             return pd.DataFrame(columns=["price"])
@@ -62,14 +61,3 @@ class EntsoeLoader:
             return renewable
         except NoMatchingDataError:
             return pd.DataFrame(columns=["wind", "solar"])
-
-    def build_dataset(self, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
-        validate_dates(start, end)
-
-        prices = self.get_prices(start, end)
-        load = self.get_load(start, end)
-        renewable = self.get_wind_solar(start, end)
-
-        df = prices.join(load, how="inner").join(renewable, how="inner").sort_index()
-
-        return df
