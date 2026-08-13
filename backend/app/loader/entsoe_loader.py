@@ -2,7 +2,7 @@ import os
 from entsoe import EntsoePandasClient
 from entsoe.exceptions import NoMatchingDataError
 
-from app.src.settings import settings
+from config.settings import settings
 import pandas as pd
 
 from utils.validation import validate_dates
