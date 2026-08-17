@@ -8,27 +8,34 @@ class HistoricalDatasetBuilder:
     def __init__(self, loader: EntsoeLoader):
         self.loader = loader
 
-
     @staticmethod
-    def merge_energy_data(prices_df: pd.DataFrame, load_df: pd.DataFrame) -> pd.DataFrame:
-
-        if prices_df.empty and load_df.empty:
+    def merge_energy_data(
+            prices_df: pd.DataFrame,
+            load_df: pd.DataFrame,
+            renewable_df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """
+        Merges prices, load, wind, and solar DataFrames into a single dataset.
+        Uses an outer join to ensure no timestamps are lost even if data is missing.
+        """
+        if prices_df.empty and load_df.empty and renewable_df.empty:
             return pd.DataFrame()
 
-        merged = pd.concat([prices_df, load_df], axis=1, join="outer")
+        merged = pd.concat([prices_df, load_df, renewable_df], axis=1, join="outer")
         return merged
 
     def build(self, start_date: str, end_date: str, refresh_cache: bool = False) -> pd.DataFrame:
-
+        """
+        Generates the final historical dataset for the requested date range.
+        Fetches data in monthly chunks to respect API rate limits and utilizes caching.
+        """
         start_month = pd.Timestamp(start_date).replace(day=1)
-
 
         months = pd.date_range(start=start_month, end=end_date, freq="MS")
 
         all_months_data = []
 
         for dt in months:
-
             prices = get_cached_or_fetch(
                 fetch_func=self.loader.get_prices,
                 year=dt.year,
@@ -45,16 +52,23 @@ class HistoricalDatasetBuilder:
                 refresh=refresh_cache
             )
 
+            renewable = get_cached_or_fetch(
+                fetch_func=self.loader.get_wind_solar,
+                year=dt.year,
+                month=dt.month,
+                data_type="renewable",
+                refresh=refresh_cache
+            )
+
             prices = normalize_timezone(prices)
             load = normalize_timezone(load)
-
+            renewable = normalize_timezone(renewable)
 
             prices = resample_to_15min(prices)
-
             load = resample_to_15min(load)
+            renewable = resample_to_15min(renewable)
 
-
-            monthly_merged = self.merge_energy_data(prices, load)
+            monthly_merged = self.merge_energy_data(prices, load, renewable)
 
             if not monthly_merged.empty:
                 all_months_data.append(monthly_merged)
