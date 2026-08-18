@@ -21,8 +21,8 @@ class HistoricalDatasetBuilder:
         if prices_df.empty and load_df.empty and renewable_df.empty:
             return pd.DataFrame()
 
-        merged = pd.concat([prices_df, load_df, renewable_df], axis=1, join="outer")
-        return merged
+        merged = pd.concat([prices_df, load_df, renewable_df], axis=1, join="outer", sort=False)
+        return merged.sort_index()
 
     def build(self, start_date: str, end_date: str, refresh_cache: bool = False) -> pd.DataFrame:
         """

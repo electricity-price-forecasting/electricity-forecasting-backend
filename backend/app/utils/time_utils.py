@@ -26,3 +26,11 @@ def resample_to_15min(df: pd.DataFrame) -> pd.DataFrame:
         return df
 
     return df.resample("15min").interpolate(method="time").round(2)
+
+
+def validate_dates(start, end):
+    start = pd.Timestamp(start)
+    end = pd.Timestamp(end)
+    if start >= end:
+        raise ValueError("Start date must be before end date")
+    return start, end

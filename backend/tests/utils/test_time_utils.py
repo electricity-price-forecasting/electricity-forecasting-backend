@@ -53,6 +53,13 @@ class TestTimeUtils(unittest.TestCase):
         self.assertEqual(result.iloc[3]["price"], 40.0)  # 10:45
         self.assertEqual(result.iloc[4]["price"], 50.0)  # 11:00
 
+    def test_validate_dates_rejects_invalid_range(self):
+        with pytest.raises(ValueError):
+            validate_dates(
+                pd.Timestamp("2026-01-02"),
+                pd.Timestamp("2026-01-01"),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

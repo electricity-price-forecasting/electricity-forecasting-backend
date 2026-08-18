@@ -5,8 +5,6 @@ from entsoe.exceptions import NoMatchingDataError
 from config.settings import settings
 import pandas as pd
 
-from utils.validation import validate_dates
-
 
 class EntsoeLoader:
 
