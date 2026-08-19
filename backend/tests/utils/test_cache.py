@@ -1,3 +1,6 @@
+import os
+
+os.environ["ENTSOE_API_KEY"] = "test-api-key"
 import unittest
 import pandas as pd
 from unittest.mock import Mock, patch
@@ -10,7 +13,9 @@ class TestCacheUtils(unittest.TestCase):
     @patch("app.utils.cache.os.makedirs")
     @patch("app.utils.cache.os.path.exists")
     @patch("app.utils.cache.pd.read_parquet")
-    def test_get_cached_or_fetch_returns_cache_when_exists(self, mock_read_parquet, mock_exists, mock_makedirs):
+    def test_get_cached_or_fetch_returns_cache_when_exists(
+        self, mock_read_parquet, mock_exists, mock_makedirs
+    ):
         """
         Test that if the cache file exists and refresh is False,
         the function reads from the disk and does not call the API.
@@ -31,7 +36,7 @@ class TestCacheUtils(unittest.TestCase):
             year=2026,
             month=8,
             data_type="prices",
-            refresh=False
+            refresh=False,
         )
 
         # 3. Assertions
@@ -46,7 +51,9 @@ class TestCacheUtils(unittest.TestCase):
 
     @patch("app.utils.cache.os.path.exists")
     @patch("app.utils.cache.os.makedirs")
-    def test_get_cached_or_fetch_calls_api_when_no_cache(self, mock_makedirs, mock_exists):
+    def test_get_cached_or_fetch_calls_api_when_no_cache(
+        self, mock_makedirs, mock_exists
+    ):
         """
         Test that if the cache file does not exist,
         the function calls the API loader and saves the result to parquet.
@@ -59,13 +66,10 @@ class TestCacheUtils(unittest.TestCase):
         mock_fetch_func = Mock(return_value=api_response_df)
 
         # Mock the to_parquet method of the DataFrame to prevent disk writes
-        with patch.object(pd.DataFrame, 'to_parquet') as mock_to_parquet:
+        with patch.object(pd.DataFrame, "to_parquet") as mock_to_parquet:
             # 2. Execute the function
             result = get_cached_or_fetch(
-                fetch_func=mock_fetch_func,
-                year=2026,
-                month=8,
-                data_type="load"
+                fetch_func=mock_fetch_func, year=2026, month=8, data_type="load"
             )
 
             # 3. Assertions

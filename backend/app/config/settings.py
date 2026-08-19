@@ -1,22 +1,19 @@
+from typing import ClassVar
+
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
 
 
 class Settings(BaseSettings):
-
-    entsoe_api_key: str
-    country: str = "PL"
+    entsoe_api_key: str = Field(validation_alias="ENTSOE_API_KEY")
+    country: str = Field(default="PL", validation_alias="COUNTRY")
 
     PROJECT_NAME: str = "Electricity Price Forecasting"
+    BASE_DIR: ClassVar[Path] = Path(__file__).resolve().parents[1]
 
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_HOST: str
-    POSTGRES_PORT: str
-    POSTGRES_DB: str
-    POSTGRES_ECHO: bool = False
-
-    REDIS_PORT: int
-    REDIS_HOST: str
+    raw_file: Path = BASE_DIR / "data" / "raw" / "historical_dataset.csv"
+    cache_dir: Path = BASE_DIR / "data" / "cache"
 
     @property
     def database_url(self) -> str:

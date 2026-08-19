@@ -1,18 +1,14 @@
-import os
 from entsoe import EntsoePandasClient
 from entsoe.exceptions import NoMatchingDataError
 
-from config.settings import settings
+from app.config.settings import settings
 import pandas as pd
 
 
 class EntsoeLoader:
 
     def __init__(self, country=settings.country) -> None:
-        api_key = os.getenv("ENTSOE_API_KEY")
-        if not api_key:
-            raise ValueError("Environment variable ENTSOE_API_KEY is not set.")
-        self.client = EntsoePandasClient(api_key=api_key)
+        self.client = EntsoePandasClient(api_key=settings.entsoe_api_key)
         self.country = country
 
     @staticmethod

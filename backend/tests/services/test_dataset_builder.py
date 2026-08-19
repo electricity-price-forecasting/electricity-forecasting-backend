@@ -28,16 +28,24 @@ class TestHistoricalDatasetBuilder(unittest.TestCase):
         Test that the merge uses an outer join and does not drop rows
         if data is missing in one of the DataFrames.
         """
-        prices_index = pd.to_datetime(["2026-01-01 10:00", "2026-01-01 10:30"], utc=True)
+        prices_index = pd.to_datetime(
+            ["2026-01-01 10:00", "2026-01-01 10:30"], utc=True
+        )
         prices_df = pd.DataFrame({"price": [100.0, 150.0]}, index=prices_index)
 
         load_index = pd.to_datetime(["2026-01-01 10:00", "2026-01-01 10:15"], utc=True)
         load_df = pd.DataFrame({"load": [1000.0, 1100.0]}, index=load_index)
 
-        renewable_index = pd.to_datetime(["2026-01-01 10:15", "2026-01-01 10:30"], utc=True)
-        renewable_df = pd.DataFrame({"wind": [50.0, 60.0], "solar": [20.0, 30.0]}, index=renewable_index)
+        renewable_index = pd.to_datetime(
+            ["2026-01-01 10:15", "2026-01-01 10:30"], utc=True
+        )
+        renewable_df = pd.DataFrame(
+            {"wind": [50.0, 60.0], "solar": [20.0, 30.0]}, index=renewable_index
+        )
 
-        result = HistoricalDatasetBuilder.merge_energy_data(prices_df, load_df, renewable_df)
+        result = HistoricalDatasetBuilder.merge_energy_data(
+            prices_df, load_df, renewable_df
+        )
 
         self.assertEqual(len(result), 3)
 
@@ -56,7 +64,9 @@ class TestHistoricalDatasetBuilder(unittest.TestCase):
         Test that the builder correctly trims the full month cached data
         down to the exact requested dates.
         """
-        full_month_index = pd.date_range("2026-08-01", "2026-08-31", freq="15min", tz="UTC")
+        full_month_index = pd.date_range(
+            "2026-08-01", "2026-08-31", freq="15min", tz="UTC"
+        )
         mock_df = pd.DataFrame({"dummy_col": 1}, index=full_month_index)
 
         mock_get_cached.return_value = mock_df
@@ -75,6 +85,52 @@ class TestHistoricalDatasetBuilder(unittest.TestCase):
         self.assertEqual(result.index.max(), expected_end)
 
         self.assertTrue(result.index.is_monotonic_increasing)
+
+    @patch("app.services.dataset_builder.save_csv")
+    @patch("app.services.dataset_builder.HistoricalDatasetBuilder.build")
+    @patch("app.services.dataset_builder.EntsoeLoader")
+    def test_main_builds_and_saves_dataset(
+        self,
+        mock_loader,
+        mock_build,
+        mock_save_csv,
+    ):
+        """
+        Test that the main workflow builds the dataset
+        and passes it to save_csv.
+        """
+
+        expected_dataset = pd.DataFrame(
+            {
+                "price": [100.0, 150.0],
+                "load": [1000.0, 1100.0],
+                "wind": [50.0, 60.0],
+                "solar": [20.0, 30.0],
+            }
+        )
+
+        mock_build.return_value = expected_dataset
+
+        from app.services.dataset_builder import main
+
+        main()
+
+        # Loader should be created
+        mock_loader.assert_called_once()
+
+        # Builder should build the dataset
+        mock_build.assert_called_once()
+
+        # save_csv should be called
+        mock_save_csv.assert_called_once()
+
+        # Check the DataFrame passed to save_csv
+        saved_dataset = mock_save_csv.call_args.args[0]
+
+        pd.testing.assert_frame_equal(
+            saved_dataset,
+            expected_dataset,
+        )
 
 
 if __name__ == "__main__":
