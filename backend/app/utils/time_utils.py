@@ -1,4 +1,5 @@
 import pandas as pd
+import holidays
 
 
 def normalize_timezone(df: pd.DataFrame) -> pd.DataFrame:
@@ -34,3 +35,6 @@ def validate_dates(start, end):
     if start >= end:
         raise ValueError("Start date must be before end date")
     return start, end
+
+def is_nonworking_day(timestamp: pd.Timestamp) -> int:
+    return int(timestamp.weekday() >= 5 or timestamp.date() in holidays.Poland())

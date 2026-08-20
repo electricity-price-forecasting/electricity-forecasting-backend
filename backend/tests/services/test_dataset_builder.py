@@ -95,10 +95,6 @@ class TestHistoricalDatasetBuilder(unittest.TestCase):
         mock_build,
         mock_save_csv,
     ):
-        """
-        Test that the main workflow builds the dataset
-        and passes it to save_csv.
-        """
 
         expected_dataset = pd.DataFrame(
             {

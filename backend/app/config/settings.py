@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     raw_file: Path = BASE_DIR / "data" / "raw" / "historical_dataset.csv"
     cache_dir: Path = BASE_DIR / "data" / "cache"
 
+    LATITUDE: ClassVar[float] = 52.1
+    LONGITUDE: ClassVar[float] = 19.5
+
     @property
     def database_url(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
