@@ -1,4 +1,17 @@
 :root {
+  --bg-canvas: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-subcard: #f8fafc;
+  --border-color: #e2e8f0;
+  
+  --primary-blue: #2563eb;
+  --primary-blue-light: #eff6ff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  
+  --status-green: #16a34a;
+  --status-red: #dc2626;
+
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
@@ -52,6 +65,10 @@
 
 body {
   margin: 0;
+  background-color: var(--bg-canvas);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {

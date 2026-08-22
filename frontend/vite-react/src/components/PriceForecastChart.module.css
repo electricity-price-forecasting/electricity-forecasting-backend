@@ -1,0 +1,73 @@
+.container { 
+  display: flex; 
+  flex-direction: column; 
+}
+
+.header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 16px; 
+}
+
+.title { 
+  margin: 0; 
+  font-size: 1rem; 
+  color: var(--text-main); 
+}
+
+.select { 
+  border: 1px solid var(--border-color); 
+  border-radius: 6px; 
+  padding: 4px 8px; 
+  font-size: 0.75rem; 
+  color: var(--text-main); 
+}
+
+.chartWrapper { 
+  position: relative; 
+}
+
+.legend { 
+  display: flex; 
+  justify-content: center; 
+  gap: 16px; 
+  font-size: 0.725rem; 
+  color: var(--text-muted); 
+  margin-top: 12px; 
+}
+
+.legend span { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+}
+
+.actualLine { 
+  width: 12px; 
+  height: 3px; 
+  background: var(--primary-blue); 
+}
+
+.forecastLine { 
+  width: 12px; 
+  height: 2px; 
+  border-top: 2px dashed #60a5fa; 
+}
+
+.rangeBox { 
+  width: 12px; 
+  height: 8px; 
+  background: var(--primary-blue-light); 
+  border: 1px solid #dbeafe; 
+}
+
+.footer { 
+  display: flex; 
+  justify-content: space-between; 
+  font-size: 0.675rem; 
+  color: var(--text-muted); 
+  border-top: 1px solid var(--border-color); 
+  padding-top: 10px; 
+  margin-top: 12px; 
+}

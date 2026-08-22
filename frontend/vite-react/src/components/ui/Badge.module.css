@@ -1,0 +1,18 @@
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.green { 
+  color: var(--status-green); 
+}
+
+.red { 
+  color: var(--status-red); 
+}
+
+.neutral { 
+  color: var(--text-muted); 
+  background: var(--bg-subcard); 
+}
